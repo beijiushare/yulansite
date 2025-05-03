@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <title>余澜的小站</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #grid {
+        display: grid;
+        grid-template-columns: repeat(9, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: 2px;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .cell {
+        position: relative;
+        perspective: 1000px;
+      }
+
+      .cell-inner {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.5s;
+      }
+
+      .cell-front,
+      .cell-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5vmax;
+      }
+
+      .cell-front {
+        background-color: #12a6e5;
+        color: #ffffff;
+      }
+
+      .cell-back {
+        background-color: #12a6e5;
+        color: #ffffff;
+        transform: rotateY(180deg);
+      }
+
+      .cell.flipped .cell-inner {
+        transform: rotateY(180deg);
+      }
+
+      .button-container {
+        position: fixed;
+        bottom: 150px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+      }
+
+      .btn {
+        background-color: #12a6e5;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #ffffff;
+        color: #12a6e5;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100 flex flex-col items-center justify-center">
+    <div id="grid">
+      <!-- 动态生成方格 -->
+    </div>
+    <div class="button-container">
+      <button class="btn" onclick="window.location.href='Terminal.html'">
+        进入本站
+      </button>
+    </div>
+
+    <script>
+      const grid = document.getElementById("grid");
+      const rows = 5;
+      const cols = 9;
+      const states = ["", "余", "澜", "的", "小", "站"];
+      const targetText = "余澜的小站";
+
+      // 初始化网格
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+
+          const cellInner = document.createElement("div");
+          cellInner.classList.add("cell-inner");
+
+          const cellFront = document.createElement("div");
+          cellFront.classList.add("cell-front");
+          cellFront.textContent = "";
+
+          const cellBack = document.createElement("div");
+          cellBack.classList.add("cell-back");
+          cellBack.textContent = "";
+
+          cellInner.appendChild(cellFront);
+          cellInner.appendChild(cellBack);
+          cell.appendChild(cellInner);
+          grid.appendChild(cell);
+        }
+      }
+
+      function performTransition() {
+        // 计算正中间起始位置
+        const startCol = Math.floor((cols - targetText.length) / 2);
+        const startRow = Math.floor(rows / 2);
+
+        // 重置所有方格状态
+        const cells = grid.querySelectorAll(".cell");
+        cells.forEach((cell) => {
+          cell.classList.remove("flipped");
+          const cellFront = cell.querySelector(".cell-front");
+          const cellBack = cell.querySelector(".cell-back");
+          cellFront.textContent = "";
+          cellBack.textContent = "";
+        });
+
+        // 切换字符
+        targetText.split("").forEach((char, index) => {
+          const col = startCol + index;
+          const row = startRow;
+          const cellIndex = row * cols + col;
+          const cell = grid.children[cellIndex];
+
+          if (cell) {
+            const cellFront = cell.querySelector(".cell-front");
+            const cellBack = cell.querySelector(".cell-back");
+            let currentStateIndex = 0;
+            const targetStateIndex = states.indexOf(char);
+
+            const interval = setInterval(() => {
+              currentStateIndex = (currentStateIndex + 1) % states.length;
+              cellFront.textContent = states[currentStateIndex];
+
+              if (currentStateIndex === targetStateIndex) {
+                clearInterval(interval);
+                cell.classList.add("flipped");
+                cellBack.textContent = char;
+              }
+            }, 200);
+          }
+        });
+      }
+
+      // 初始执行一次
+      performTransition();
+
+      // 每两秒重复执行
+      setInterval(performTransition, 2500);
+    </script>
+  </body>
+</html>

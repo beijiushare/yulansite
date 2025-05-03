@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>余澜的小站 Terminal</title>
+    <style>
+      body {
+        font-family: monospace;
+        background-color: #000;
+        color: #0f0;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .terminal {
+        flex: 1;
+        background-color: #000;
+        border: none;
+        padding: 25px;
+        margin-left: 30px;
+        margin-right: 30px;
+        overflow: auto;
+        font-size: 18px;
+        line-height: 1.5;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+
+      .prompt {
+        color: #0f0;
+        font-weight: bold;
+      }
+
+      .output {
+        margin-left: 2px;
+        color: #0f0;
+      }
+
+      .command-box {
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      input {
+        background-color: transparent;
+        border: none;
+        color: #0f0;
+        font-family: monospace;
+        font-size: 14px;
+        width: 100%;
+        outline: none;
+        padding-left: 5px;
+      }
+
+      .markdown-container {
+        background-color: #0f0f0f;
+        border-radius: 10px;
+        border: #0f0 solid 2px;
+        padding: 15px;
+        margin-top: 15px;
+        margin-left: 150px;
+        margin-right: 150px;
+      }
+    </style>
+    <script src="marked.min.js"></script>
+  </head>
+
+  <body>
+    <div class="terminal" id="terminal">
+      <div id="output" class="output"></div>
+      <div class="command-box">
+        <span class="prompt">user@website:~/</span>
+        <input
+          type="text"
+          id="command-input"
+          placeholder="Type a Git command..."
+        />
+      </div>
+    </div>
+
+    <script>
+      const terminal = document.getElementById("terminal");
+      const outputDiv = document.getElementById("output");
+      const commandInput = document.getElementById("command-input");
+
+      const welcomeMessage = [
+        "Welcome to the Nickel's website Terminal !",
+        "Type 'help' to see the list of available commands.\nType 'about' to display summary.\nType 'home' to go back to the home page.",
+      ];
+
+      function displayWelcomeMessage() {
+        let index = 0;
+        const intervalId = setInterval(() => {
+          if (index < welcomeMessage.length) {
+            addOutput(welcomeMessage[index]);
+            index++;
+          } else {
+            clearInterval(intervalId);
+          }
+        }, 50);
+      }
+
+      const commands = {
+        clear: () => window.location.reload(),
+        home: () => (window.location.href = "index.html"),
+        content: async () => {
+          try {
+            const response = await fetch("content.json");
+            const data = await response.json();
+            const articleList = data
+              .map((article) => `${article.id}: ${article.title}`)
+              .join("\n");
+            addOutput(articleList);
+          } catch (error) {
+            addOutput(`Error fetching content: ${error.message}`);
+          }
+        },
+        new: async () => {
+          try {
+            const response = await fetch("content.json");
+            const data = await response.json();
+            const latestArticle = data[data.length - 1];
+            const mdResponse = await fetch(latestArticle.path);
+            const mdContent = await mdResponse.text();
+            const htmlContent = marked.parse(mdContent);
+            const markdownDiv = document.createElement("div");
+            markdownDiv.classList.add("markdown-container");
+            markdownDiv.innerHTML = htmlContent;
+            outputDiv.appendChild(markdownDiv);
+            terminal.scrollTop = terminal.scrollHeight;
+          } catch (error) {
+            addOutput(`Error fetching markdown: ${error.message}`);
+          }
+        },
+        help: () => {
+          const commandDescriptions = {
+            clear: "刷新页面",
+            home: "返回主页",
+            content: "显示文章id与标题列表",
+            new: "显示最新文章的内容",
+            help: "显示所有命令的列表及解释",
+            show: "输入 'show id' 显示对应id的文章",
+            about: "显示id为1的文章内容（相当于show 1）",
+          };
+          let helpText = "可用命令列表及解释：\n";
+          for (const [command, description] of Object.entries(
+            commandDescriptions
+          )) {
+            helpText += `${command}: ${description}\n`;
+          }
+          addOutput(helpText);
+        },
+        show: async (id) => {
+          try {
+            const response = await fetch("content.json");
+            const data = await response.json();
+            const article = data.find((article) => article.id === parseInt(id));
+            if (article) {
+              const mdResponse = await fetch(article.path);
+              const mdContent = await mdResponse.text();
+              const htmlContent = marked.parse(mdContent);
+              const markdownDiv = document.createElement("div");
+              markdownDiv.classList.add("markdown-container");
+              markdownDiv.innerHTML = htmlContent;
+              outputDiv.appendChild(markdownDiv);
+              terminal.scrollTop = terminal.scrollHeight;
+            } else {
+              addOutput(`未找到id为 ${id} 的文章`);
+            }
+          } catch (error) {
+            addOutput(`Error fetching markdown: ${error.message}`);
+          }
+        },
+        about: async () => {
+          // 实现和show 1一样的功能
+          try {
+            const response = await fetch("content.json");
+            const data = await response.json();
+            const article = data.find((article) => article.id === 1);
+            if (article) {
+              const mdResponse = await fetch(article.path);
+              const mdContent = await mdResponse.text();
+              const htmlContent = marked.parse(mdContent);
+              const markdownDiv = document.createElement("div");
+              markdownDiv.classList.add("markdown-container");
+              markdownDiv.innerHTML = htmlContent;
+              outputDiv.appendChild(markdownDiv);
+              terminal.scrollTop = terminal.scrollHeight;
+            } else {
+              addOutput(`未找到id为 1 的文章`);
+            }
+          } catch (error) {
+            addOutput(`Error fetching markdown: ${error.message}`);
+          }
+        },
+      };
+
+      commandInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          const input = commandInput.value.trim();
+          const [command, arg] = input.split(" ");
+
+          // Display the command input
+          addOutput(`user@computer:~/ ${input}`);
+
+          // Clear the input
+          commandInput.value = "";
+
+          // Process the command
+          if (commands[command]) {
+            if (command === "show" && arg) {
+              commands[command](arg);
+            } else if (command !== "show") {
+              commands[command]();
+            } else {
+              addOutput("请输入有效的文章id，如 'show 1'");
+            }
+          } else {
+            addOutput("$: command not found");
+          }
+
+          // Scroll to bottom
+          terminal.scrollTop = terminal.scrollHeight;
+        }
+      });
+
+      function addOutput(text) {
+        const pre = document.createElement("pre");
+        pre.textContent = text;
+        outputDiv.appendChild(pre);
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+
+      window.onload = function () {
+        displayWelcomeMessage();
+        commandInput.focus();
+      };
+    </script>
+  </body>
+</html>
