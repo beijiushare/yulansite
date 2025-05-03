@@ -1,4 +1,4 @@
 [
-  { "id": 1, "title": "我是谁", "path": "article/1-about.md" },
+  { "id": 1, "title": "关于本站", "path": "article/1-about.md" },
   { "id": 2, "title": "test", "path": "article/2-test.md" }
 ]
