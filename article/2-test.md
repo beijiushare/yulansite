@@ -10,9 +10,14 @@ _Italic text_
 
 ~~Strikethrough~~
 
+---
+
+```python
+# This is a Python code block
+print("Hello, world!")
 ```
-Code block
-```
+
+---
 
 [余澜.top](https://www.余澜.top)
 
