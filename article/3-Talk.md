@@ -20,7 +20,7 @@
 
   要么出众，要么出局，
 
-  鼓励歇尽全力做到极点。
+  鼓励竭尽全力做到极点。
 
 - Done is better than perfect.
 
