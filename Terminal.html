@@ -140,13 +140,13 @@
         },
         help: () => {
           const commandDescriptions = {
-            clear: "刷新页面",
+            clear: "清理终端",
             home: "返回主页",
-            content: "显示文章id与标题列表",
-            new: "显示最新文章的内容",
-            help: "显示所有命令的列表及解释",
-            show: "输入 'show id' 显示对应id的文章",
-            about: "显示id为1的文章内容（相当于show 1）",
+            content: "输出文章id与标题列表",
+            new: "输出最新文章的内容",
+            help: "输出所有命令的列表及解释",
+            show: "输入 'show id' 命令后输出对应id的文章",
+            about: "输出本站说明（相当于show 1）",
           };
           let helpText = "可用命令列表及解释：\n";
           for (const [command, description] of Object.entries(
