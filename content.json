@@ -1,4 +1,9 @@
 [
   { "id": 1, "title": "关于本站", "path": "article/1-about.md" },
-  { "id": 2, "title": "test", "path": "article/2-test.md" }
+  { "id": 2, "title": "test", "path": "article/2-test.md" },
+  {
+    "id": 3,
+    "title": "Talk is cheap. Show me the code. 盘点 IT 大佬们的名言",
+    "path": "article/3-Talk.md"
+  }
 ]
